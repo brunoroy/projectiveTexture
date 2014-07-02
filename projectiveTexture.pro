@@ -1,9 +1,6 @@
 QT += core gui opengl xml
-
 QMAKE_CXXFLAGS += -std=gnu++11
-
 TARGET = projectiveTexture
-
 TEMPLATE = app
 
 HEADERS += \
@@ -17,7 +14,7 @@ FORMS += \
 
 INCLUDEPATH += include
 
-LIBS += -lQGLViewer -lGL -lGLU -lGLEW -lstdc++
+LIBS += -lQGLViewer -lGL -lGLU -lGLEW
 
 OBJECTS_DIR = build
 MOC_DIR = build

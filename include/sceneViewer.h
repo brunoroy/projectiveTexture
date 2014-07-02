@@ -24,7 +24,7 @@ using namespace qglviewer;
 class SceneViewer : public QGLViewer
 {
 public:
-    SceneViewer(Ui_MainWindow *userInterface, QGLFormat glFormat);
+    SceneViewer(Ui_MainWindow *userInterface);
     ~SceneViewer();
 
     void drawGeometry();
@@ -34,7 +34,7 @@ public slots:
 
 protected:
     void init();
-    void animate();
+    //void animate();
     void draw();
     void keyPressEvent(QKeyEvent* event);
 

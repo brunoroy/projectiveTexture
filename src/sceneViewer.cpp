@@ -10,8 +10,7 @@
 
 #define OPENGL_TEST 1
 
-SceneViewer::SceneViewer(Ui_MainWindow *userInterface, QGLFormat glFormat):
-    QGLViewer(glFormat)
+SceneViewer::SceneViewer(Ui_MainWindow *userInterface)
 {
     _userInterface = userInterface;
     _sceneCamera.reset(this->camera());
@@ -25,14 +24,14 @@ SceneViewer::~SceneViewer()
 
 void SceneViewer::init()
 {
-    setSceneRadius(100.0);
+    setSceneRadius(10.0);
     setSceneCenter(Vec(0.0, 0.0, 0.0));
     setBackgroundColor(QColor(0.0, 0.0, 0.0));
     _sceneCamera->setType(Camera::ORTHOGRAPHIC);
     topCameraView();
     _sceneCamera->setZNearCoefficient(0.01f);
-    setMouseBinding(Qt::ShiftModifier | Qt::RightButton, CAMERA, TRANSLATE);
-    setMouseBinding(Qt::NoModifier | Qt::RightButton, SELECT);
+    //setMouseBinding(Qt::ShiftModifier | Qt::RightButton, CAMERA, TRANSLATE);
+    //setMouseBinding(Qt::NoModifier | Qt::RightButton, SELECT);
 
     glewExperimental = GL_TRUE;
     glewInit();
@@ -54,9 +53,9 @@ void SceneViewer::init()
     loadShaders();
 }
 
-void SceneViewer::animate()
+/*void SceneViewer::animate()
 {
-}
+}*/
 
 void SceneViewer::loadShaders()
 {
@@ -123,37 +122,51 @@ void SceneViewer::loadShaders()
     glDeleteShader(_shaderID[1]);
 }
 
+/*void printMat(glm::mat4  mat)
+{
+    int i,j;
+    for (j=0; j<4; j++){
+        for (i=0; i<4; i++){
+            printf("%f ",mat[i][j]);
+        }
+        printf("\n");
+    }
+}*/
+
 void SceneViewer::drawGeometry()
 {
-    QVector<QVector<float>> colors;
-    QVector<QVector<float>> points;
-    QVector<float> point;
-    QVector<float> color;
-    color.push_back(1.0f);
-    color.push_back(1.0f);
-    color.push_back(1.0f);
-    color.push_back(1.0f);
+    float min = -0.5f;
+    float max = 0.5f;
 
-    point.push_back(0.0f);
-    point.push_back(0.0f);
-    point.push_back(0.0f);
-    points.push_back(point);
-    colors.push_back(color);
+    std::vector<glm::vec3> points;
+    std::vector<glm::vec4> colors;
+    glm::vec4 white(1.0f, 1.0f, 1.0f, 1.0f);
+
+    points.push_back(glm::vec3(min, 0.0f, min));
+    colors.push_back(white);
+    points.push_back(glm::vec3(max, 0.0f, min));
+    colors.push_back(white);
+    points.push_back(glm::vec3(max, 0.0f, max));
+    colors.push_back(white);
+    points.push_back(glm::vec3(min, 0.0f, max));
+    colors.push_back(white);
 
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, points.size() * sizeof(GLfloat), &points.at(0), GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, points.size() * 3 * sizeof(GLfloat), &points.at(0), GL_STREAM_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(GLfloat), &colors.at(0), GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, colors.size() * 4 * sizeof(GLfloat), &colors.at(0), GL_STREAM_DRAW);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glPointSize(5.0f);
+    //glPointSize(5.0f);
 
     glUseProgram(_programID);
 
     GLdouble matrix[16];
     _sceneCamera->getModelViewProjectionMatrix(matrix);
     _matrix = glm::make_mat4(matrix);
+
+    //printMat(_matrix);
 
     glUniformMatrix4fv(_matrixID, 1, GL_FALSE, &_matrix[0][0]);
 
@@ -165,7 +178,9 @@ void SceneViewer::drawGeometry()
     glBindBuffer(GL_ARRAY_BUFFER, _colorBuffer);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-    glDrawArrays(GL_POINTS, 0, points.size());
+    //glDrawArrays(GL_LINES, 0, 2);
+    //glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_QUADS, 0, points.size());
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
